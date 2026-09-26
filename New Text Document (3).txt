@@ -1,0 +1,927 @@
+# ROLE
+
+Act as a senior software-repository architect, Python deployment engineer, Telegram-bot engineer, Linux/Termux deployment specialist, and Git repository auditor.
+
+Your task is to create a **NEW, CLEAN, SELF-CONTAINED GitHub repository specifically for manually running the Telegram bot from Termux on Android for a temporary period**.
+
+This is NOT a request to redesign the bot.
+
+This is NOT a request to rewrite the bot.
+
+This is NOT a request to migrate the bot to another framework.
+
+The primary objective is:
+
+> Take the existing Telegram bot project and all files that are genuinely required for installing, preparing, configuring, launching, maintaining, and troubleshooting it, and organize them into a dedicated GitHub repository that can later be cloned to Termux and run manually.
+
+---
+
+# 1. FIRST: FULL PROJECT DISCOVERY — DO NOT MODIFY ANYTHING YET
+
+Before creating or changing the new repository, inspect the entire source project available to you.
+
+Do not assume that the main bot folder contains everything required.
+
+You must recursively inspect:
+
+* The main bot directory
+* Every subdirectory
+* Every `.py` file
+* Every `.sh` file
+* Every `.yml` / `.yaml` file
+* `requirements.txt`
+* `pyproject.toml`
+* `setup.py`
+* `setup.cfg`
+* `Pipfile`
+* `Pipfile.lock`
+* `poetry.lock`
+* `Dockerfile`
+* shell installation scripts
+* startup scripts
+* update scripts
+* migration scripts
+* dependency-installation scripts
+* system/package installation scripts
+* configuration templates
+* documentation
+* launcher files
+* service definitions
+* environment templates
+* test files
+* helper utilities
+* database-related files
+* assets required at runtime
+* media files required at runtime
+* any local modules imported by the bot
+* any generated files that are actually required
+* any files referenced by scripts
+* any files referenced by Python imports
+* any files referenced by configuration
+* any files referenced by documentation
+
+Also inspect hidden files and directories where relevant, including:
+
+* `.env.example`
+* `.gitignore`
+* `.dockerignore`
+* `.github/`
+* hidden configuration files
+* hidden deployment-related files
+
+Do not modify the original project during this discovery phase.
+
+---
+
+# 2. ESTABLISH THE TRUE RUNTIME DEPENDENCY GRAPH
+
+Do not determine required files merely by looking at filenames.
+
+Build a dependency map.
+
+For every important file, determine:
+
+### Python dependencies
+
+Identify:
+
+* direct imports
+* local imports
+* package imports
+* dynamically imported modules where detectable
+* optional dependencies
+* runtime-only dependencies
+* development-only dependencies
+
+### Shell dependencies
+
+For every `.sh` file, inspect:
+
+* commands it executes
+* files it creates
+* files it reads
+* directories it expects
+* environment variables it requires
+* Python versions it expects
+* pip packages it installs
+* system packages it installs
+* external binaries it requires
+* configuration it generates
+* other scripts it calls
+* whether it launches the bot
+* whether it performs one-time setup
+* whether it performs recurring maintenance
+
+### Configuration dependencies
+
+Determine:
+
+* which environment variables are required
+* which are optional
+* which have defaults
+* which files are required
+* which directories must exist
+* which external services are required
+* which Telegram credentials are required
+* whether databases or persistent storage are required
+
+Create an internal dependency graph before making repository changes.
+
+---
+
+# 3. CLASSIFY EVERY FILE
+
+Every discovered file must be classified into one of these categories:
+
+### A — REQUIRED FOR BOT RUNTIME
+
+The bot cannot function correctly without it.
+
+### B — REQUIRED FOR INSTALLATION / SETUP
+
+It is needed to prepare Termux or install the bot's dependencies.
+
+### C — REQUIRED FOR LAUNCH / OPERATION
+
+It is needed to start, stop, restart, update, or maintain the bot manually.
+
+### D — REQUIRED CONFIGURATION TEMPLATE
+
+It is needed to explain or provide configuration structure, but must not contain secrets.
+
+### E — USEFUL OPERATIONAL DOCUMENTATION
+
+Not technically required for execution but useful for safely operating the repository.
+
+### F — DEVELOPMENT-ONLY
+
+Useful for development/testing but not required for the intended Termux deployment.
+
+### G — OBSOLETE / REDUNDANT / UNRELATED
+
+Not required for this dedicated repository.
+
+Do not blindly copy everything.
+
+Do not blindly delete anything either.
+
+Every exclusion must have a technical reason.
+
+---
+
+# 4. SPECIAL ATTENTION TO ALL `.SH` FILES
+
+This is extremely important.
+
+The existing project contains multiple `.sh` scripts, and some of them may be related to:
+
+* bot installation
+* prerequisite installation
+* Python environment setup
+* dependency installation
+* startup
+* restart
+* configuration
+* maintenance
+* cleanup
+* database preparation
+* system preparation
+* Termux compatibility
+
+You MUST inspect every `.sh` file.
+
+For each script determine:
+
+1. What does it do?
+2. Is it actually related to the Telegram bot?
+3. Is it required on Termux?
+4. Does it work on Termux?
+5. Does it assume Ubuntu/Debian?
+6. Does it require `sudo`?
+7. Does it use `apt`?
+8. Does it use `systemctl`?
+9. Does it assume systemd?
+10. Does it assume a Linux VPS rather than Android/Termux?
+11. Does it install Python packages?
+12. Does it install system packages?
+13. Does it call another project file?
+14. Does the bot depend on the result of that script?
+15. Can its logic be reused safely on Termux?
+16. Does it need a Termux-specific adaptation?
+
+Do NOT copy a server-only `.sh` script into the new repository and pretend it is Termux-compatible.
+
+If a script is important but designed specifically for Ubuntu/systemd and therefore cannot run directly on Termux, preserve it only if it is genuinely useful for reference or future deployment, and clearly separate it from Termux runtime scripts.
+
+Do not silently execute destructive or incompatible commands.
+
+---
+
+# 5. TERMUX IS THE TARGET ENVIRONMENT
+
+The target environment is:
+
+**Android + Termux**
+
+The user intends to:
+
+1. Clone the new GitHub repository into Termux.
+2. Install prerequisites manually or through provided scripts.
+3. Configure required secrets/environment variables.
+4. Start the Telegram bot manually.
+5. Keep it running temporarily.
+6. Stop it manually when desired.
+
+Therefore, the repository must be designed around **manual Termux execution**, not:
+
+* Railway
+* Render
+* Docker
+* Kubernetes
+* GitHub Actions
+* Ubuntu systemd
+* VPS deployment
+* Windows
+* cloud hosting
+
+unless a file is needed by the bot itself.
+
+---
+
+# 6. DO NOT DESTROY THE ORIGINAL BOT ARCHITECTURE
+
+The original Telegram bot's functionality is the source of truth.
+
+Do NOT:
+
+* rewrite the bot
+* refactor unrelated code
+* rename modules unnecessarily
+* change the Telegram framework
+* change business logic
+* change database logic
+* remove features
+* simplify the bot
+* replace working code with a different implementation
+* modify behavior merely to make the repository look cleaner
+
+Only make changes that are genuinely necessary for:
+
+* repository organization
+* Termux compatibility
+* dependency installation
+* secure configuration
+* correct launching
+* fixing objectively broken deployment references
+* correcting broken paths caused by moving files
+
+If a modification is necessary, make the smallest possible change.
+
+---
+
+# 7. CREATE A NEW DEDICATED REPOSITORY
+
+Create a completely new GitHub repository for this purpose.
+
+The new repository must contain the bot and the files genuinely required to operate it manually from Termux.
+
+Do NOT turn the existing deployment repository into this repository.
+
+Do NOT mix unrelated infrastructure into it.
+
+The new repository should have a clear purpose:
+
+> A standalone Telegram bot repository optimized for manual Termux deployment and temporary operation.
+
+---
+
+# 8. REPOSITORY STRUCTURE
+
+Design the final structure based on your dependency analysis.
+
+A structure similar to the following is preferred, but you must adapt it to the actual project:
+
+```text
+telegram-bot-termux/
+│
+├── bot/
+│   ├── [actual bot source files]
+│   ├── [local modules]
+│   ├── [required assets]
+│   └── ...
+│
+├── scripts/
+│   ├── install.sh
+│   ├── setup.sh
+│   ├── start.sh
+│   ├── stop.sh
+│   ├── restart.sh
+│   └── [other genuinely required scripts]
+│
+├── requirements.txt
+├── .env.example
+├── .gitignore
+├── README.md
+└── ...
+```
+
+However:
+
+**DO NOT force this exact structure if it conflicts with the existing bot architecture.**
+
+If the original bot already has a good structure, preserve it.
+
+The goal is functional correctness, not cosmetic restructuring.
+
+---
+
+# 9. PRESERVE IMPORTANT EXISTING `.SH` FILES
+
+If the existing project has `.sh` files that are genuinely required for:
+
+* prerequisites
+* dependency installation
+* setup
+* launch
+* restart
+* maintenance
+
+they must be included in the new repository.
+
+However, organize them intelligently.
+
+If a script is already correct and compatible:
+
+**preserve it with minimal or no modification.**
+
+If a script is Ubuntu-specific and cannot work on Termux:
+
+* do not falsely label it as Termux-compatible
+* do not execute it blindly
+* determine whether it should be excluded, preserved as reference, or replaced by a small Termux-specific equivalent
+
+If a Termux-specific wrapper is necessary, create one without modifying the original server script unnecessarily.
+
+---
+
+# 10. TERMUX COMPATIBILITY AUDIT
+
+Perform a dedicated compatibility audit.
+
+Check for assumptions such as:
+
+```bash
+apt
+sudo
+systemctl
+service
+ufw
+snap
+docker
+/etc/systemd/
+systemctl enable
+systemctl restart
+useradd
+adduser
+chown
+chmod
+/etc/environment
+/etc/profile.d/
+```
+
+These may not work in normal Termux.
+
+Also inspect:
+
+* filesystem paths
+* executable paths
+* Python invocation
+* pip invocation
+* background process handling
+* environment variable handling
+* shell compatibility
+* `$HOME`
+* working directory assumptions
+* file permissions
+* subprocess behavior
+
+Do not assume standard Ubuntu filesystem locations exist in Termux.
+
+---
+
+# 11. PYTHON DEPENDENCY AUDIT
+
+Inspect the actual Python source and determine every package required to run the bot.
+
+Compare:
+
+* imports
+* `requirements.txt`
+* setup scripts
+* documentation
+* shell installation scripts
+
+Identify:
+
+* missing dependencies
+* unused dependencies
+* incorrect versions
+* duplicate dependency declarations
+* packages that are platform-specific
+* packages that may not install on Termux
+
+Do not arbitrarily upgrade packages.
+
+Preserve known-working versions unless there is a demonstrated compatibility issue.
+
+The final repository must contain a reliable dependency specification.
+
+---
+
+# 12. SECRET MANAGEMENT
+
+NEVER commit:
+
+* Telegram bot tokens
+* API IDs
+* API hashes
+* passwords
+* private keys
+* session strings
+* database passwords
+* personal access tokens
+* cookies
+* credentials
+* `.env` containing real secrets
+
+The repository may contain:
+
+```text
+.env.example
+```
+
+but only with placeholders.
+
+For example:
+
+```env
+API_ID=
+API_HASH=
+BOT_TOKEN=
+```
+
+Use the actual variable names required by the existing bot.
+
+Do not invent a new configuration system unless necessary.
+
+---
+
+# 13. CHECK `.GITIGNORE`
+
+Create or update `.gitignore` so that secrets and runtime-generated files cannot accidentally enter Git.
+
+At minimum, consider:
+
+```gitignore
+.env
+*.session
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+```
+
+But determine additional exclusions from the actual project.
+
+Do not ignore files that are actually required by the bot.
+
+---
+
+# 14. DO NOT COPY IRRELEVANT SERVER INFRASTRUCTURE
+
+The previous project may contain infrastructure intended for:
+
+* GitHub Actions
+* VPS provisioning
+* Ubuntu
+* systemd
+* Railway
+* cloud deployment
+* temporary runners
+* server lifecycle management
+
+Do not automatically include these.
+
+For each such file ask:
+
+> Does this file contribute to the bot's manual Termux operation?
+
+If not, exclude it from the dedicated repository.
+
+The purpose of this repository is to remain focused and operational.
+
+---
+
+# 15. MAIN.YML AND GITHUB ACTIONS
+
+If the existing project contains:
+
+```text
+.github/workflows/main.yml
+```
+
+inspect it carefully.
+
+Determine whether it is:
+
+* required by the bot
+* merely a deployment mechanism
+* related to VPS creation
+* related to temporary GitHub runners
+* related to automated execution
+* unrelated to manual Termux operation
+
+Unless the bot itself genuinely depends on it, **do not include it in the new Termux repository**.
+
+The user wants to manually run the bot from Termux.
+
+Do not accidentally bring the old automated deployment architecture into the new repository.
+
+---
+
+# 16. STARTUP EXPERIENCE
+
+The final repository should make manual operation straightforward.
+
+A user should be able to understand:
+
+```text
+clone repository
+        ↓
+install prerequisites
+        ↓
+configure secrets
+        ↓
+install Python dependencies
+        ↓
+start bot
+```
+
+Where practical, provide a simple script such as:
+
+```bash
+./scripts/start.sh
+```
+
+or an appropriate Termux-compatible launcher.
+
+But do not create unnecessary wrappers if the existing bot already has a correct launcher.
+
+The launcher must:
+
+* use the correct working directory
+* use the correct Python interpreter
+* load the correct configuration
+* start the correct entry point
+* propagate errors
+* not silently hide crashes
+
+---
+
+# 17. DO NOT USE SYSTEMD FOR TERMUX
+
+The target is Termux.
+
+Do not require:
+
+```bash
+systemctl
+```
+
+or a systemd service.
+
+If the original project contains a systemd service, treat it as a separate deployment mechanism and do not make the Termux setup depend on it.
+
+---
+
+# 18. README REQUIREMENTS
+
+Create a concise but technically accurate `README.md`.
+
+It must explain:
+
+### What the repository is
+
+A standalone Telegram bot intended for manual Termux execution.
+
+### Requirements
+
+* Termux
+* supported Python version
+* required packages
+* required external tools, if any
+
+### Installation
+
+Exact commands from a clean Termux environment.
+
+### Configuration
+
+Explain which environment variables are required.
+
+Never place real credentials in the README.
+
+### Running
+
+Explain exactly how to start the bot.
+
+### Stopping
+
+Explain how to stop the manually running process.
+
+### Logs
+
+Explain where logs appear, if applicable.
+
+### Troubleshooting
+
+Include common problems caused by:
+
+* missing packages
+* incorrect environment variables
+* Telegram connection issues
+* permission problems
+* Termux package problems
+
+Do not invent troubleshooting instructions unrelated to the actual project.
+
+---
+
+# 19. VALIDATE FROM A CLEAN-ENVIRONMENT PERSPECTIVE
+
+Before considering the repository complete, simulate the following workflow:
+
+```text
+Fresh Termux
+   ↓
+Clone repository
+   ↓
+Install prerequisites
+   ↓
+Install Python dependencies
+   ↓
+Configure environment
+   ↓
+Launch bot
+   ↓
+Bot initializes
+   ↓
+Telegram connection established
+   ↓
+Bot remains running
+```
+
+Identify every missing file, missing dependency, missing directory, incorrect path, or undocumented requirement.
+
+---
+
+# 20. STATIC VALIDATION
+
+Perform:
+
+### Python validation
+
+* syntax checks
+* import checks where possible
+* dependency checks
+* entry-point validation
+
+### Shell validation
+
+For every included `.sh`:
+
+* syntax validation
+* executable permission validation
+* path validation
+* dependency validation
+* Termux compatibility review
+
+### Repository validation
+
+Verify:
+
+* all required files are present
+* no required files are missing
+* no secret files are included
+* no broken imports were created
+* no broken relative paths were created
+* no unnecessary server infrastructure was included
+
+---
+
+# 21. DO NOT CLAIM SUCCESS WITHOUT EVIDENCE
+
+Do not say:
+
+> "The repository is ready."
+
+unless you have actually verified the relevant files.
+
+Do not say:
+
+> "The bot works."
+
+unless you have performed a meaningful runtime validation or clearly state what could and could not be tested.
+
+Separate:
+
+* verified
+* statically verified
+* simulated
+* not testable in the current environment
+
+---
+
+# 22. CHANGE CONTROL
+
+Every modification must have a reason.
+
+For every changed file, record internally:
+
+```text
+FILE
+WHY IT WAS CHANGED
+WHAT WAS CHANGED
+WHY THE CHANGE WAS NECESSARY
+```
+
+Do not make stylistic changes merely for appearance.
+
+Do not reformat large files unnecessarily.
+
+Do not rewrite working code.
+
+Do not upgrade dependencies merely because newer versions exist.
+
+---
+
+# 23. PRESERVE THE ORIGINAL PROJECT
+
+The original project must remain intact.
+
+The new repository is a derived deployment repository.
+
+Do not destroy or overwrite the source project.
+
+Do not delete source files simply because they are not needed in the new repository.
+
+---
+
+# 24. FINAL REPOSITORY AUDIT
+
+Before finishing, perform a final audit against this exact checklist:
+
+### Repository
+
+* [ ] New dedicated repository created
+* [ ] Repository purpose is clearly defined
+* [ ] No unrelated deployment infrastructure
+* [ ] Original bot architecture preserved
+
+### Bot
+
+* [ ] All runtime Python files included
+* [ ] All local imports resolve
+* [ ] Required assets included
+* [ ] Correct entry point identified
+
+### Dependencies
+
+* [ ] Python dependencies identified
+* [ ] requirements specification verified
+* [ ] Shell prerequisites identified
+* [ ] Termux compatibility checked
+
+### Shell scripts
+
+* [ ] Every relevant `.sh` inspected
+* [ ] Required scripts included
+* [ ] Incompatible Ubuntu-only scripts not falsely presented as Termux scripts
+* [ ] Launch/setup scripts work with the final structure
+
+### Security
+
+* [ ] No real secrets
+* [ ] No tokens
+* [ ] No session files
+* [ ] `.env` with real credentials absent
+* [ ] `.gitignore` configured
+
+### Termux
+
+* [ ] No systemd dependency
+* [ ] No mandatory sudo
+* [ ] No Ubuntu-only path assumptions
+* [ ] Python invocation is correct
+* [ ] Working-directory assumptions are correct
+
+### Documentation
+
+* [ ] README exists
+* [ ] Installation documented
+* [ ] Configuration documented
+* [ ] Startup documented
+* [ ] Shutdown documented
+* [ ] Troubleshooting documented
+
+### Validation
+
+* [ ] Python syntax checked
+* [ ] Shell syntax checked
+* [ ] Dependencies checked
+* [ ] File references checked
+* [ ] Runtime entry point checked
+* [ ] Final repository structure audited
+
+---
+
+# 25. FINAL REPORT
+
+After completing the work, provide a concise technical report containing:
+
+### 1. New repository
+
+Repository name and purpose.
+
+### 2. Final structure
+
+Show the final directory tree.
+
+### 3. Included `.sh` files
+
+For every included shell script:
+
+```text
+filename
+purpose
+Termux compatibility
+```
+
+### 4. Excluded files
+
+List important files that were intentionally excluded and explain why.
+
+### 5. Required environment variables
+
+List variable names only.
+
+Never reveal secrets.
+
+### 6. Installation
+
+Provide the exact clean-Termux installation sequence.
+
+### 7. Run command
+
+Provide the exact command used to start the bot.
+
+### 8. Validation
+
+Clearly distinguish:
+
+```text
+VERIFIED
+PARTIALLY VERIFIED
+NOT TESTABLE
+```
+
+### 9. Changes
+
+List every file that was modified and the reason.
+
+---
+
+# FINAL OPERATING PRINCIPLE
+
+The goal is NOT to make the repository look impressive.
+
+The goal is to make it **actually usable**.
+
+A fresh Termux environment should be able to clone this repository, install the required prerequisites, configure the required secrets, and manually start the existing Telegram bot with the minimum number of steps.
+
+Preserve the bot's existing behavior.
+
+Preserve its architecture.
+
+Preserve its required supporting files.
+
+Include the relevant `.sh` scripts and prerequisite logic.
+
+Exclude unrelated server/cloud automation.
+
+Never include secrets.
+
+Never make unnecessary changes.
+
+**First understand the entire existing system. Then build the smallest complete repository that contains everything genuinely required to operate the bot manually from Termux.**
